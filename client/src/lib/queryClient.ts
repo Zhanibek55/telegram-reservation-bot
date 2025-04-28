@@ -11,10 +11,21 @@ export async function apiRequest(
   method: string,
   url: string,
   data?: unknown | undefined,
+  options?: { headers?: Record<string, string> }
 ): Promise<Response> {
+  // Import telegramId within the function to avoid circular dependencies
+  const { getTelegramUserId } = await import("./telegram");
+  const telegramId = getTelegramUserId();
+  
+  const headers: Record<string, string> = {
+    ...(data ? { "Content-Type": "application/json" } : {}),
+    ...(telegramId ? { "X-Telegram-ID": telegramId } : {}),
+    ...(options?.headers || {})
+  };
+
   const res = await fetch(url, {
     method,
-    headers: data ? { "Content-Type": "application/json" } : {},
+    headers,
     body: data ? JSON.stringify(data) : undefined,
     credentials: "include",
   });
@@ -29,8 +40,18 @@ export const getQueryFn: <T>(options: {
 }) => QueryFunction<T> =
   ({ on401: unauthorizedBehavior }) =>
   async ({ queryKey }) => {
+    // Import telegramId within the function to avoid circular dependencies
+    const { getTelegramUserId } = await import("./telegram");
+    const telegramId = getTelegramUserId();
+    
+    const headers: Record<string, string> = {};
+    if (telegramId) {
+      headers["X-Telegram-ID"] = telegramId;
+    }
+    
     const res = await fetch(queryKey[0] as string, {
       credentials: "include",
+      headers
     });
 
     if (unauthorizedBehavior === "returnNull" && res.status === 401) {
