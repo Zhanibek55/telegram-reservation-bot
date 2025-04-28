@@ -3,8 +3,9 @@ import { Table } from "@shared/schema";
 // Define common table dimensions
 export const TABLE_WIDTH = 80;
 export const TABLE_HEIGHT = 40;
-export const SVG_WIDTH = 300;
-export const SVG_HEIGHT = 200;
+// Adjust SVG dimensions to better fit the layout
+export const SVG_WIDTH = 400;
+export const SVG_HEIGHT = 360;
 
 // Define status colors - should match Tailwind config
 export const STATUS_COLORS = {
@@ -13,20 +14,33 @@ export const STATUS_COLORS = {
   inactive: "#9E9E9E"    // Gray
 };
 
-// Predefined table positions in the SVG - this could be enhanced to be dynamic
+// Predefined table positions in the SVG - based on the reference image
 export const TABLE_POSITIONS = [
-  { x: 30, y: 30 },   // Table 1
-  { x: 30, y: 100 },  // Table 2
-  { x: 170, y: 30 },  // Table 3
-  { x: 170, y: 100 }, // Table 4
+  // Top row (tables 1, 2, 3)
+  { x: 120, y: 30 },  // Table 1
+  { x: 220, y: 30 },  // Table 2
+  { x: 320, y: 30 },  // Table 3
+  
+  // Middle row (tables 4, 5)
+  { x: 170, y: 130 }, // Table 4
+  { x: 270, y: 130 }, // Table 5
+  
+  // Bottom row (tables 6, 7)
+  { x: 170, y: 230 }, // Table 6
+  { x: 270, y: 230 }, // Table 7
+  
+  // Left side vertical tables (tables 8, 9)
+  { x: 30, y: 230 },  // Table 8
+  { x: 30, y: 90 },   // Table 9
 ];
 
-// Type for a table with position
+// Type for a table with position and orientation
 export type TableWithPosition = Table & {
   position: { x: number, y: number };
+  isVertical?: boolean;
 };
 
-// Process tables with their positions
+// Process tables with their positions and orientations
 export function processTablesWithPositions(tables: Table[]): TableWithPosition[] {
   return tables.map((table, index) => {
     // Use the position from our predefined layout or default to (0,0)
@@ -34,9 +48,13 @@ export function processTablesWithPositions(tables: Table[]): TableWithPosition[]
       ? TABLE_POSITIONS[index]
       : { x: 0, y: 0 };
     
+    // Tables 8 and 9 (indices 7 and 8) are vertical
+    const isVertical = index === 7 || index === 8;
+    
     return {
       ...table,
-      position
+      position,
+      isVertical
     };
   });
 }
@@ -57,14 +75,25 @@ export function isPointInTable(
   table: TableWithPosition
 ): boolean {
   const { x, y } = point;
-  const { position } = table;
+  const { position, isVertical } = table;
   
-  return (
-    x >= position.x &&
-    x <= position.x + TABLE_WIDTH &&
-    y >= position.y &&
-    y <= position.y + TABLE_HEIGHT
-  );
+  if (isVertical) {
+    // For vertical tables, swap width and height
+    return (
+      x >= position.x &&
+      x <= position.x + TABLE_HEIGHT && // Use height as width
+      y >= position.y &&
+      y <= position.y + TABLE_WIDTH  // Use width as height
+    );
+  } else {
+    // For horizontal tables (default)
+    return (
+      x >= position.x &&
+      x <= position.x + TABLE_WIDTH &&
+      y >= position.y &&
+      y <= position.y + TABLE_HEIGHT
+    );
+  }
 }
 
 // Find which table was clicked, if any

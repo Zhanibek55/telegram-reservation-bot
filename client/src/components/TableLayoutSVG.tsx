@@ -38,12 +38,17 @@ const TableLayoutSVG = ({ tables, onTableClick }: TableLayoutSVGProps) => {
   
   return (
     <div className="relative bg-gray-100 p-3 rounded-lg mb-6 overflow-hidden">
+      <h3 className="text-lg font-medium mb-2 text-center">Схема расположения столов</h3>
       <svg 
         ref={svgRef}
         viewBox={`0 0 ${SVG_WIDTH} ${SVG_HEIGHT}`} 
-        className="w-full border border-gray-200 rounded-lg bg-white"
+        className="w-full border border-gray-200 rounded-lg bg-gray-50"
         onClick={handleClick}
       >
+        {/* Room walls/boundaries */}
+        <line x1="100" y1="0" x2="100" y2={SVG_HEIGHT} stroke="#333" strokeWidth="3" />
+        <line x1="0" y1="180" x2="100" y2="180" stroke="#333" strokeWidth="3" />
+        
         {tablesWithPositions.map((table) => (
           <g 
             key={table.id}
@@ -53,23 +58,38 @@ const TableLayoutSVG = ({ tables, onTableClick }: TableLayoutSVGProps) => {
             data-table-id={table.id}
             data-table-status={table.status}
           >
-            <rect 
-              x={table.position.x} 
-              y={table.position.y} 
-              width={TABLE_WIDTH} 
-              height={TABLE_HEIGHT} 
-              className="stroke-gray-800 stroke-2"
-              fill={getTableFillColor(table.status)}
-              rx="2"
-            />
+            {table.isVertical ? (
+              // Vertical table
+              <rect 
+                x={table.position.x} 
+                y={table.position.y} 
+                width={TABLE_HEIGHT} // Swap width and height
+                height={TABLE_WIDTH} 
+                className="stroke-gray-800 stroke-2"
+                fill={getTableFillColor(table.status)}
+                rx="2"
+              />
+            ) : (
+              // Horizontal table
+              <rect 
+                x={table.position.x} 
+                y={table.position.y} 
+                width={TABLE_WIDTH} 
+                height={TABLE_HEIGHT} 
+                className="stroke-gray-800 stroke-2"
+                fill={getTableFillColor(table.status)}
+                rx="2"
+              />
+            )}
+            
             <text 
-              x={table.position.x + TABLE_WIDTH / 2} 
-              y={table.position.y + TABLE_HEIGHT / 2 + 5} 
+              x={table.position.x + (table.isVertical ? TABLE_HEIGHT : TABLE_WIDTH) / 2} 
+              y={table.position.y + (table.isVertical ? TABLE_WIDTH : TABLE_HEIGHT) / 2 + 5} 
               className="text-center font-semibold"
               fill={getTableTextColor(table.status)}
               textAnchor="middle"
             >
-              Стол #{table.number}
+              {table.number}
             </text>
           </g>
         ))}
