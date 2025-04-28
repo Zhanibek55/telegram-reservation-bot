@@ -62,11 +62,16 @@ export class MemStorage implements IStorage {
       club_name: "Бильярдный клуб"
     };
     
-    // Initialize with some default tables
+    // Initialize with 9 tables according to reference layout
     this.createTable({ number: 1, status: "available" });
-    this.createTable({ number: 2, status: "busy" });
-    this.createTable({ number: 3, status: "inactive" });
+    this.createTable({ number: 2, status: "available" });
+    this.createTable({ number: 3, status: "available" });
     this.createTable({ number: 4, status: "available" });
+    this.createTable({ number: 5, status: "available" });
+    this.createTable({ number: 6, status: "available" });
+    this.createTable({ number: 7, status: "available" });
+    this.createTable({ number: 8, status: "available" });
+    this.createTable({ number: 9, status: "available" });
   }
   
   // User operations
