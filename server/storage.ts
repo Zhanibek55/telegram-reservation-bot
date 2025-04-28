@@ -85,7 +85,11 @@ export class MemStorage implements IStorage {
   
   async createUser(insertUser: InsertUser): Promise<User> {
     const id = this.userId++;
-    const user: User = { ...insertUser, id };
+    const user: User = { 
+      ...insertUser, 
+      id,
+      is_admin: insertUser.is_admin ?? false 
+    };
     this.users.set(id, user);
     return user;
   }
@@ -110,7 +114,11 @@ export class MemStorage implements IStorage {
   
   async createTable(tableData: InsertTable): Promise<Table> {
     const id = this.tableId++;
-    const table: Table = { ...tableData, id };
+    const table: Table = { 
+      ...tableData, 
+      id,
+      status: tableData.status || "available"
+    };
     this.tables.set(id, table);
     return table;
   }
@@ -158,7 +166,13 @@ export class MemStorage implements IStorage {
   async createReservation(reservationData: InsertReservation): Promise<Reservation> {
     const id = this.reservationId++;
     const created_at = new Date();
-    const reservation: Reservation = { ...reservationData, id, created_at };
+    const reservation: Reservation = { 
+      ...reservationData, 
+      id, 
+      created_at,
+      status: reservationData.status || "active",
+      comment: reservationData.comment || null
+    };
     this.reservations.set(id, reservation);
     return reservation;
   }
@@ -187,4 +201,8 @@ export class MemStorage implements IStorage {
   }
 }
 
-export const storage = new MemStorage();
+// Import the DatabaseStorage
+import { DatabaseStorage } from './DatabaseStorage';
+
+// Use DatabaseStorage for persistent storage
+export const storage = new DatabaseStorage();
