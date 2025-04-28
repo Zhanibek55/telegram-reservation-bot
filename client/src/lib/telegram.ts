@@ -94,6 +94,11 @@ export const getTelegramUser = () => {
 
 // Get user's telegram ID
 export const getTelegramUserId = (): string | null => {
+  // For development mode, return our test user ID
+  if (import.meta.env.DEV) {
+    return "123456";
+  }
+  
   const user = getTelegramUser();
   return user ? user.id.toString() : null;
 };
